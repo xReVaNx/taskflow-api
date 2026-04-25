@@ -48,4 +48,14 @@ export class AuthService {
 
     return { access_token: token };
   }
+
+  async getMe(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+  }
 }
