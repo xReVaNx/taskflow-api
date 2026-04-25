@@ -75,30 +75,21 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    try {
-      const payload = this.jwt.verify(refreshToken);
+    const payload = this.jwt.verify(refreshToken);
 
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub },
-      });
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
 
-      if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedException();
-      }
-
-      const newAccessToken = this.jwt.sign(
-        {
-          sub: user.id,
-          email: user.email,
-        },
-        {
-          expiresIn: '15m',
-        },
-      );
-
-      return { accessToken: newAccessToken };
-    } catch {
+    if (!user || user.refreshToken !== refreshToken) {
       throw new UnauthorizedException();
     }
+
+    return {
+      accessToken: this.jwt.sign({
+        sub: user.id,
+        email: user.email,
+      }),
+    };
   }
 }
