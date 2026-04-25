@@ -24,4 +24,9 @@ export class AuthController {
   async me(@Req() req) {
     return this.auth.getMe(req.user.userId);
   }
+
+  @Post('refresh')
+  refresh(@Body() body: { refreshToken: string }) {
+    return this.auth.refresh(body.refreshToken);
+  }
 }

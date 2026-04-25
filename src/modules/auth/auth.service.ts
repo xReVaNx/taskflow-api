@@ -41,12 +41,27 @@ export class AuthService {
 
     if (!isValid) throw new UnauthorizedException('Invalid Credentials');
 
-    const token = this.jwt.sign({
+    const payload = {
       sub: user.id,
       email: user.email,
+    };
+
+    const accessToken = this.jwt.sign(payload, {
+      expiresIn: '15m',
     });
 
-    return { access_token: token };
+    const refreshToken = this.jwt.sign(payload, {
+      expiresIn: '7d',
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken,
+      },
+    });
+
+    return { accessToken, refreshToken };
   }
 
   async getMe(userId: string) {
@@ -57,5 +72,33 @@ export class AuthService {
         email: true,
       },
     });
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwt.verify(refreshToken);
+
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+      });
+
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException();
+      }
+
+      const newAccessToken = this.jwt.sign(
+        {
+          sub: user.id,
+          email: user.email,
+        },
+        {
+          expiresIn: '15m',
+        },
+      );
+
+      return { accessToken: newAccessToken };
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 }
