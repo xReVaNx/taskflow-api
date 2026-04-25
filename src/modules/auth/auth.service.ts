@@ -11,6 +11,14 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new UnauthorizedException('Email already exists');
+    }
+
     const hash = await bcrypt.hash(password, 10);
 
     const user = await this.prisma.user.create({
