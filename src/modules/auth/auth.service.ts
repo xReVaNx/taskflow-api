@@ -54,10 +54,12 @@ export class AuthService {
       expiresIn: '7d',
     });
 
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
-        refreshToken,
+        refreshToken: hashedRefreshToken,
       },
     });
 
@@ -88,6 +90,12 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const isValid = bcrypt.compare(refreshToken, user.refreshToken);
+
+    if (!isValid) {
+      throw new UnauthorizedException();
+    }
+
     const newPayload = {
       sub: user.id,
       email: user.email,
@@ -101,10 +109,12 @@ export class AuthService {
       expiresIn: '7d',
     });
 
+    const hashed = await bcrypt.hash(newRefreshToken, 10);
+
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
-        refreshToken: newRefreshToken,
+        refreshToken: hashed,
       },
     });
 
