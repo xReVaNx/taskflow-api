@@ -35,7 +35,16 @@ export class AuthController {
 
   @Post('refresh')
   refresh(@Req() req) {
-    const token = req.cookies.refreshToken;
+    const token = req.cookies.refresh_token;
     return this.auth.refresh(token);
+  }
+
+  @Post('logout')
+  logout(@Req() req, @Res({ passthrough: true }) res) {
+    const refreshToken = req.cookies.refresh_token;
+
+    res.clearCookie('refresh_token');
+
+    return this.auth.logout(refreshToken);
   }
 }

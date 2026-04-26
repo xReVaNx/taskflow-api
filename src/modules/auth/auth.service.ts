@@ -92,4 +92,21 @@ export class AuthService {
       }),
     };
   }
+
+  async logout(refreshToken: string) {
+    try {
+      const payload = this.jwt.verify(refreshToken);
+
+      await this.prisma.user.update({
+        where: { id: payload.sub },
+        data: {
+          refreshToken: null,
+        },
+      });
+
+      return { message: 'Logged out' };
+    } catch {
+      return { message: 'Already logged out' };
+    }
+  }
 }
