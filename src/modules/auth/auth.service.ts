@@ -75,6 +75,9 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
     const payload = this.jwt.verify(refreshToken);
 
     const user = await this.prisma.user.findUnique({
@@ -85,11 +88,29 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const newPayload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    const newAccessToken = this.jwt.sign(newPayload, {
+      expiresIn: '15m',
+    });
+
+    const newRefreshToken = this.jwt.sign(newPayload, {
+      expiresIn: '7d',
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        refreshToken: newRefreshToken,
+      },
+    });
+
     return {
-      accessToken: this.jwt.sign({
-        sub: user.id,
-        email: user.email,
-      }),
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
   }
 

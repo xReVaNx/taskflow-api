@@ -34,9 +34,17 @@ export class AuthController {
   }
 
   @Post('refresh')
-  refresh(@Req() req) {
+  async refresh(@Req() req, @Res({ passthrough: true }) res) {
     const token = req.cookies.refresh_token;
-    return this.auth.refresh(token);
+    const tokens = await this.auth.refresh(token);
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return { accessToken: tokens.accessToken };
   }
 
   @Post('logout')
