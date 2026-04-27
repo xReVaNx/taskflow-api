@@ -44,6 +44,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const accessToken = this.jwt.sign(payload, {
@@ -72,6 +73,7 @@ export class AuthService {
       select: {
         id: true,
         email: true,
+        role: true,
       },
     });
   }
@@ -90,7 +92,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const isValid = bcrypt.compare(refreshToken, user.refreshToken);
+    const isValid = await bcrypt.compare(refreshToken, user.refreshToken);
 
     if (!isValid) {
       throw new UnauthorizedException();
@@ -99,6 +101,7 @@ export class AuthService {
     const newPayload = {
       sub: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const newAccessToken = this.jwt.sign(newPayload, {
