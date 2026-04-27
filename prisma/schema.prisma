@@ -17,6 +17,14 @@ enum Role {
   ADMIN
 }
 
+model Workspace {
+  id String @id @default(uuid())
+  name String
+  createdAt DateTime @default(now())
+
+  users User[]
+}
+
 model User {
   id  String  @id @default(uuid())
   email String @unique
@@ -25,4 +33,7 @@ model User {
   role Role @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  workspaceId String
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
 }

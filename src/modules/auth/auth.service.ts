@@ -21,10 +21,18 @@ export class AuthService {
 
     const hash = await bcrypt.hash(password, 10);
 
+    const workspace = await this.prisma.workspace.create({
+      data: {
+        name: `${email}'s Workspace`,
+      },
+    });
+
     const user = await this.prisma.user.create({
       data: {
         email,
         password: hash,
+        role: 'USER',
+        workspaceId: workspace.id,
       },
     });
     return { id: user.id, email: user.email };
@@ -44,7 +52,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
-      role: user.role,
+      workspaceId: user.workspaceId,
     };
 
     const accessToken = this.jwt.sign(payload, {
