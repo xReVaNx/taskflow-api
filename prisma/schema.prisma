@@ -9,7 +9,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -18,22 +18,32 @@ enum Role {
 }
 
 model Workspace {
-  id String @id @default(uuid())
-  name String
+  id        String   @id @default(uuid())
+  name      String
   createdAt DateTime @default(now())
 
-  users User[]
+  users    User[]
+  projects Project[]
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 }
 
 model User {
-  id  String  @id @default(uuid())
-  email String @unique
-  password String
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
   refreshToken String?
-  role Role @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   workspaceId String
-  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 }
