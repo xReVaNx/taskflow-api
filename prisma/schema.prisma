@@ -33,6 +33,17 @@ model Project {
 
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  tasks Task[]
+}
+
+model Task {
+  id String @id @default(uuid())
+  title String
+  completed Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
 }
 
 model User {
