@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { CurrentWorkspace } from '../../common/decorators/current-workspace.decorator';
 import { ProjectsService } from './projects.service';
 
@@ -6,7 +14,10 @@ import { ProjectsService } from './projects.service';
 export class ProjectsController {
   constructor(private projectsService: ProjectsService) {}
   @Post()
-  createProject(@CurrentWorkspace() workspaceId: string, @Body('name') name: string) {
+  createProject(
+    @CurrentWorkspace() workspaceId: string,
+    @Body('name') name: string,
+  ) {
     return this.projectsService.createProject(workspaceId, name);
   }
 
@@ -21,12 +32,19 @@ export class ProjectsController {
   }
 
   @Patch('id')
-  updateProject(@CurrentWorkspace() workspaceId: string, @Param('id') id: string, @Body('name') name: string) {
+  updateProject(
+    @CurrentWorkspace() workspaceId: string,
+    @Param('id') id: string,
+    @Body('name') name: string,
+  ) {
     return this.projectsService.updateProject(workspaceId, id, name);
   }
 
   @Delete('id')
-  deleteProject(@CurrentWorkspace() workspaceId: string, @Param('id') id: string) {
+  deleteProject(
+    @CurrentWorkspace() workspaceId: string,
+    @Param('id') id: string,
+  ) {
     return this.projectsService.deleteProject(workspaceId, id);
   }
 }

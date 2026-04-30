@@ -5,31 +5,67 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  create(projectId: string, title: string) {
+  private async validateProjectAccess(projectId: string, workspaceId: string) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: projectId,
+        workspaceId,
+      },
+    });
+
+    if (!project) {
+      throw new Error('Project not found or access denied');
+    }
+
+    return project;
+  }
+
+  async create(workspaceId: string, projectId: string, title: string) {
+    await this.validateProjectAccess(projectId, workspaceId);
+
     return this.prisma.task.create({
       data: {
         title,
-        projectId,
+        project: {
+          connect: {
+            id: projectId,
+          },
+        },
       },
     });
   }
 
-  getTasks(projectId: string) {
+  getTasks(workspaceId: string, projectId: string) {
     return this.prisma.task.findMany({
-      where: { projectId },
+      where: {
+        projectId,
+        project: {
+          workspaceId,
+        },
+      },
     });
   }
 
-  toggleTask(taskId: string, completed: boolean) {
+  toggleTask(workspaceId: string, taskId: string, completed: boolean) {
     return this.prisma.task.update({
-      where: { id: taskId },
+      where: {
+        id: taskId,
+        project: {
+          workspaceId,
+        },
+      },
       data: { completed },
     });
   }
 
-  deleteTask(taskId: string) {
+  deleteTask(workspaceId: string, taskId: string) {
     return this.prisma.task.delete({
-      where: { id: taskId },
+      where: {
+        id: taskId,
+        project: {
+          workspaceId,
+        },
+      },
     });
   }
 }
