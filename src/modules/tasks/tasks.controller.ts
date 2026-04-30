@@ -8,7 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CurrentWorkspace } from '../common/decorators/current-workspace.decorator';
+import { CurrentWorkspace } from '../../common/decorators/current-workspace.decorator';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -18,9 +20,9 @@ export class TasksController {
   create(
     @CurrentWorkspace() workspaceId: string,
     @Param('projectId') projectId: string,
-    @Body('title') title: string,
+    @Body('title') dto: CreateTaskDto,
   ) {
-    return this.tasksService.create(workspaceId, projectId, title);
+    return this.tasksService.create(workspaceId, projectId, dto.title);
   }
 
   @Get(':projectId')
@@ -35,9 +37,9 @@ export class TasksController {
   toggle(
     @CurrentWorkspace() workspaceId: string,
     @Param('taskId') taskId: string,
-    @Body('completed') completed: boolean,
+    @Body('completed') dto: UpdateTaskDto,
   ) {
-    return this.tasksService.toggleTask(workspaceId, taskId, completed);
+    return this.tasksService.toggleTask(workspaceId, taskId, dto.completed);
   }
 
   @Delete(':projectId')

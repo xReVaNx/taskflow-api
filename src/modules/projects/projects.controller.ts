@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { CurrentWorkspace } from '../../common/decorators/current-workspace.decorator';
 import { ProjectsService } from './projects.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -16,9 +18,9 @@ export class ProjectsController {
   @Post()
   createProject(
     @CurrentWorkspace() workspaceId: string,
-    @Body('name') name: string,
+    @Body('name') dto: CreateProjectDto,
   ) {
-    return this.projectsService.createProject(workspaceId, name);
+    return this.projectsService.createProject(workspaceId, dto.name);
   }
 
   @Get()
@@ -35,9 +37,9 @@ export class ProjectsController {
   updateProject(
     @CurrentWorkspace() workspaceId: string,
     @Param('id') id: string,
-    @Body('name') name: string,
+    @Body('name') dto: UpdateProjectDto,
   ) {
-    return this.projectsService.updateProject(workspaceId, id, name);
+    return this.projectsService.updateProject(workspaceId, id, dto.name);
   }
 
   @Delete('id')
